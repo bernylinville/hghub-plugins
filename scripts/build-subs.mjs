@@ -65,10 +65,17 @@ const lists = {
   },
 };
 
+// subs/ 下的列表比根目录深一层，插件相对路径需要 ../ 前缀，
+// 宿主按列表 URL 所在目录解析相对地址（HPP 01 §3/§4）。
+const nested = (list) => ({
+  ...list,
+  plugins: list.plugins.map((p) => ({ ...p, url: '../plugins/' + p.url.slice('plugins/'.length) })),
+});
+
 fs.mkdirSync(path.join(root, 'subs'), { recursive: true });
 writeJson(path.join(root, 'manifest.json'), lists.all);
-writeJson(path.join(root, 'subs', 'all.json'), lists.all);
-writeJson(path.join(root, 'subs', 'vod.json'), lists.vod);
-writeJson(path.join(root, 'subs', '18.json'), lists.adult);
+writeJson(path.join(root, 'subs', 'all.json'), nested(lists.all));
+writeJson(path.join(root, 'subs', 'vod.json'), nested(lists.vod));
+writeJson(path.join(root, 'subs', '18.json'), nested(lists.adult));
 
 console.log('all', all.length, 'vod', vod.length, '18', adult.length);
